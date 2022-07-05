@@ -1,28 +1,17 @@
+import bcrypt from "bcrypt";
+import { createUser, searchUser } from "../repositories/userRepository.js";
 
-
-export async function register (req, res) {
+export async function register(req, res) {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.sendStatus(422);
-    }
+    const existingUsers = await searchUser("email", email);
 
-    const existingUsers = await connection.query(
-      `SELECT * FROM "users" WHERE "email"=$1`,
-      [email]
-    );
-
-    if (existingUsers.rowCount > 0) {
-      return res.sendStatus(409);
-    }
-
+    if (existingUsers.rowCount > 0) return res.sendStatus(409);
+  
     const hashedPassword = bcrypt.hashSync(password, 12);
 
-    await connection.query(
-      `INSERT INTO "users" ("name", "email", "password") VALUES ($1, $2, $3)`,
-      [name, email, hashedPassword]
-    );
+    createUser(name, email, hashedPassword);
 
     res.sendStatus(201);
   } catch (err) {
@@ -31,7 +20,7 @@ export async function register (req, res) {
   }
 }
 
-export async function login (req, res) {
+export async function login(req, res) {
   try {
     const { email, password } = req.body;
 
@@ -39,10 +28,7 @@ export async function login (req, res) {
       return res.sendStatus(422);
     }
 
-    const { rows } = await connection.query(
-      `SELECT * FROM "users" WHERE "email"=$1`,
-      [email]
-    );
+    const { rows } = await searchUser("email", email);
     const [user] = rows;
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
