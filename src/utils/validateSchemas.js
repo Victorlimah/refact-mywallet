@@ -1,9 +1,9 @@
 export const validateSchemas = (schema) => {
-  return (validateSchemas[schema] = (req, res, next) => {
-    const { error } = schema.validate(req.body, { abortEarly: false });
-    if (error)
-      throw new Error( {type: "ValidationError", message: error.details.map(({ message }) => message).join(", ") });
-    else
-      next();
-  });
-};
+  return (req, res, next) => {
+    const result = schema.validate(req.body);
+    if (result.error) {
+      return res.status(400).json({ error: result.error.details[0].message });
+    }
+    next();
+  };
+}

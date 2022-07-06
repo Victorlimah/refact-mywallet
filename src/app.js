@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import router from "./routes/index.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import "express-async-errors";
 
 const app = express();
 

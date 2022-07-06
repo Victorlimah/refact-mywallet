@@ -1,9 +1,12 @@
 export default function errorHandler(err, _req, res, _next) {
+  console.log("chegou no errorHandler");
+  const exceptions = {
+  "UnprocessableEntity": 422,
+  "Unauthorized": 401,
+  "NotFound": 404,
+  "InternalServerError": 500
+  }
 
-  if (err.name === "Unauthorized") 
-    return res.status(401).send({ error: err.message });
-
-
-  console.log(err);
-  res.status(500).send("Internal Server Error");
+  const status = exceptions[err.type] || 500;
+  res.status(status).send({ message: err.message });
 }

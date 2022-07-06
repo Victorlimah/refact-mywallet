@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { createUser } from "../repositories/userRepository.js";
+import { createUser, searchUser } from "../repositories/userRepository.js";
 
 export async function register(name, email, password){
   const existingUsers = await searchUser("email", email);
@@ -7,7 +7,7 @@ export async function register(name, email, password){
   if (existingUsers.rowCount > 0) 
     throw new Error({type: "Conflict", message: "User already exists"});
   
-  const hashedPassword=  bcrypt.hashSync(password, 12);
+  const hashedPassword = bcrypt.hashSync(password, 12);
   createUser(name, email, hashedPassword);
 }
 
